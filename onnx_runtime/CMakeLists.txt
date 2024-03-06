@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.10)
+
+set(CMAKE_CXX_STANDARD 14)
+
+add_executable(inference main.cpp)
+
+add_compile_options("-g")
+
+target_include_directories(inference PRIVATE "/opt/homebrew/Cellar/onnxruntime/1.17.1/include/")
+target_link_libraries(inference PRIVATE "/opt/homebrew/Cellar/onnxruntime/1.17.1/lib/libonnxruntime.dylib")

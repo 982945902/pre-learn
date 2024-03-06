@@ -1,9 +1,13 @@
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <numeric>
 #include <vector>
 
+#include "benchmark/benchmark.h"
 #include "onnxruntime/onnxruntime_cxx_api.h"
+
+static std::function<void(benchmark::State&)> static_call;
 
 int main(int argc, char* argv[]) {
   // Initialize the session
@@ -14,8 +18,8 @@ int main(int argc, char* argv[]) {
   session_options.SetGraphOptimizationLevel(
       GraphOptimizationLevel::ORT_ENABLE_BASIC);
 
-//   Ort::Session session_{env, "model.onnx", session_options};
-  Ort::Session session_{env, "model.onnx", session_options};
+  //   Ort::Session session_{env, "model.onnx", session_options};
+  Ort::Session session_{env, argv[1], session_options};
 
   auto memory_info =
       Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
@@ -846,13 +850,34 @@ int main(int argc, char* argv[]) {
   auto output_tensor = Ort::Value::CreateTensor(
       alloc, prue_output_shape.data(), prue_output_shape.size(), output_type);
 
-  session_.Run(Ort::RunOptions{nullptr}, input_names, &input_tensor, 1,
-               output_names, &output_tensor, 1);
-
-  auto res = output_tensor.GetTensorData<float>();
-
-  for (int i = 0; i < element_count; i++) {
-    std::cout << res[i] << " ";
+  int targc = argc - 1;
+  char* targv[targc];
+  targv[0] = argv[0];
+  for (int i = 2; i < argc; i++) {
+    targv[i - 1] = argv[i];
   }
 
+  for (int i = 0; i < targc; i++) std::cout << targv[i] << " ";
+  std::cout << std::endl;
+
+  benchmark::Initialize(&argc, targv);
+  static_call = [&](benchmark::State& state) {
+    for (auto _ : state)
+      session_.Run(Ort::RunOptions{nullptr}, input_names, &input_tensor, 1,
+                   output_names, &output_tensor, 1);
+  };
+
+  BENCHMARK([](benchmark::State& state) { static_call(state); });
+
+  // 运行基准测试
+  benchmark::RunSpecifiedBenchmarks();
+
+  //   session_.Run(Ort::RunOptions{nullptr}, input_names, &input_tensor, 1,
+  //                output_names, &output_tensor, 1);
+
+  //   auto res = output_tensor.GetTensorData<float>();
+
+  //   for (int i = 0; i < element_count; i++) {
+  //     std::cout << res[i] << " ";
+  //   }
 }

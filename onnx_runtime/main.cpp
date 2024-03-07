@@ -867,7 +867,9 @@ int main(int argc, char* argv[]) {
                    output_names, &output_tensor, 1);
   };
 
-  BENCHMARK([](benchmark::State& state) { static_call(state); });
+  BENCHMARK([](benchmark::State& state) {
+    static_call(state);
+  })->Iterations(10000 * 100);
 
   // 运行基准测试
   benchmark::RunSpecifiedBenchmarks();

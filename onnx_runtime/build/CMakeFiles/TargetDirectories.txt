@@ -1,0 +1,4 @@
+/Users/lishuo121/workspace/pre-learn/onnx_runtime/build/CMakeFiles/inference.dir
+/Users/lishuo121/workspace/pre-learn/onnx_runtime/build/CMakeFiles/custom_op.dir
+/Users/lishuo121/workspace/pre-learn/onnx_runtime/build/CMakeFiles/edit_cache.dir
+/Users/lishuo121/workspace/pre-learn/onnx_runtime/build/CMakeFiles/rebuild_cache.dir
